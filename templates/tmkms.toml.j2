@@ -1,0 +1,39 @@
+# Tendermint KMS configuration file
+
+## Chain Configuration
+
+### Cosmos Hub Network
+
+[[chain]]
+id = "{{chain_id}}"
+key_format = { type = "bech32", account_key_prefix = "{{ account_key_prefix }}", consensus_key_prefix = "{{ consensus_key_prefix }}" }
+state_file = "{{ kms_home }}/.tmkms/config/state/priv_validator_state.json"
+
+## Signing Provider Configuration
+
+### Software-based Signer Configuration
+{% if kms_mode == "softsign" %}
+[[providers.softsign]]
+chain_ids = ["{{chain_id}}"]
+key_type = "consensus"
+path = "{{ kms_home }}/.tmkms/config/secrets/priv_validator_key"
+{% endif %}
+
+### KMS Signer Configuration
+{% if kms_mode == "yubihsm" %}
+[[providers.yubihsm]]
+adapter = { type = "usb" }
+auth = { key = {{kms_hsm_id | default(1) }}, password = "{{kms_hsm_pass | default("password")}}" }
+keys = [
+    { key = 1, type = "consensus", chain_ids = ["{{chain_id}}"] },
+]
+{% endif %}
+
+## Validator Configuration
+
+[[validator]]
+chain_id = "{{chain_id}}"
+addr = "{{ priv_validator_raddr }}"
+secret_key = "{{ kms_home }}/.tmkms/config/secrets/kms-identity.key"
+protocol_version = "v0.34"
+reconnect = true

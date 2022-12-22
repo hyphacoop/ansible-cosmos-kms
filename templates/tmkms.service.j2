@@ -1,0 +1,10 @@
+[Unit]
+Description="Tendermint KMS Service"
+
+[Service]
+User={{kms_user}}
+WorkingDirectory={{kms_home}}/.tmkms
+ExecStart={{kms_home}}/.cargo/bin/tmkms start -c {{kms_home}}/.tmkms/config/tmkms.toml
+
+[Install]
+WantedBy=multi-user.target
